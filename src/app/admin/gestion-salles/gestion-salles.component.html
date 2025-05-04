@@ -1,0 +1,146 @@
+<div class="machine-control-container">
+  <!-- Onglets de navigation -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.active]="activeTab === 'salles'" (click)="activeTab = 'salles'">
+      <i class="fas fa-door-open"></i> Gestion des Salles
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+      <i class="fas fa-users"></i> Gestion des Utilisateurs
+    </button>
+  </div>
+
+  <!-- Contenu de l'onglet Salles -->
+  <div *ngIf="activeTab === 'salles'">
+    <div class="page-header">
+      <h1>Gestion des Salles</h1>
+      <p>Ce panneau vous permet de créer, modifier et visualiser vos salles.</p>
+    </div>
+
+    <!-- Formulaire de création -->
+    <div class="create-room-form">
+      <div class="form-group">
+        <label for="name">Nom de la salle :</label>
+        <input
+          [(ngModel)]="newSalleName"
+          id="name"
+          placeholder="Ex: Salle1, Bureau2"
+        />
+      </div>
+      <div class="form-group">
+        <label for="mode">Mode initial :</label>
+        <select [(ngModel)]="newSalleMode" id="mode">
+          <option [value]="MODE_MANUEL">Manuel</option>
+          <option [value]="MODE_AUTO">Automatique</option>
+        </select>
+      </div>
+      <button (click)="createSalle()" [disabled]="!newSalleName">
+        Créer Salle
+      </button>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Rechercher une salle..."
+        [(ngModel)]="searchQuery"
+        (input)="applySearch()"
+      />
+    </div>
+
+    <!-- Liste des salles -->
+    <div class="room-grid">
+      <div class="room-card" *ngFor="let salle of filteredSalles">
+        <div class="room-header">
+          <h3 class="room-name">{{ salle.name | titlecase }}</h3>
+          <div
+            class="room-mode"
+            [ngClass]="{
+              'mode-auto': salle.mode === MODE_AUTO,
+              'mode-manual': salle.mode === MODE_MANUEL
+            }"
+          >
+            {{ getModeText(salle.mode) }}
+          </div>
+        </div>
+
+        <!-- Contrôle du mode -->
+        <div class="room-actions">
+          <button
+            class="btn-mode"
+            (click)="updateSalleMode(salle.name, toggleMode(salle.mode))"
+          >
+            Changer vers {{ getModeText(toggleMode(salle.mode)) }}
+          </button>
+          <button class="btn-delete" (click)="deleteSalle(salle.name)">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu de l'onglet Utilisateurs -->
+  <div *ngIf="activeTab === 'users'">
+    <div class="page-header">
+      <h1>Gestion des Utilisateurs</h1>
+      <p>Ce panneau vous permet de gérer les utilisateurs et leurs salles assignées.</p>
+    </div>
+
+    <!-- Barre de recherche pour utilisateurs -->
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Rechercher un utilisateur..."
+        [(ngModel)]="userSearchQuery"
+        (input)="applyUserSearch()"
+      />
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div class="users-table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Nom d'utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Salle assignée</th>
+            <th>Mode</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="user-role" [ngClass]="'role-' + user.role.toLowerCase()">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <select [(ngModel)]="user.tempLocation" class="location-select">
+                <option value="">Non assigné</option>
+                <option *ngFor="let salle of salles" [value]="salle.name">
+                  {{ salle.name }}
+                </option>
+              </select>
+            </td>
+            <td>{{ getModeText(user.mode) }}</td>
+            <td class="actions-cell">
+              <button 
+                class="btn-update" 
+                (click)="updateUserSalle(user.email, user.tempLocation)"
+                [disabled]="user.location === user.tempLocation">
+                <i class="fas fa-save"></i> Enregistrer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

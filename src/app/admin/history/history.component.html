@@ -1,0 +1,265 @@
+<div class="history-container">
+  <div class="page-header">
+    <h1>Tableau de Bord des Capteurs</h1>
+    <p>Visualisez et analysez les données de vos capteurs en temps réel</p>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="stats-cards">
+    <div class="stat-card power-card">
+      <div class="stat-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Consommation Électrique</h3>
+        <div class="stat-value">{{ getAverageValue('power') | number:'1.1-1' }} <span>W</span></div>
+        <div class="stat-subtitle">Puissance moyenne</div>
+      </div>
+    </div>
+
+    <div class="stat-card light-card">
+      <div class="stat-icon">
+        <i class="fas fa-lightbulb"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Luminosité</h3>
+        <div class="stat-value">{{ getAverageValue('light_level') | number:'1.0-0' }} <span>lux</span></div>
+        <div class="stat-subtitle">Niveau moyen</div>
+      </div>
+    </div>
+
+    <div class="stat-card gas-card">
+      <div class="stat-icon">
+        <i class="fas fa-smog"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Qualité de l'Air</h3>
+        <div class="stat-value">{{ getAverageValue('gas_level') | number:'1.0-0' }} <span>ppm</span></div>
+        <div class="stat-subtitle">Niveau de gaz moyen</div>
+      </div>
+    </div>
+
+    <div class="stat-card temp-card">
+      <div class="stat-icon">
+        <i class="fas fa-temperature-high"></i>
+      </div>
+      <div class="stat-content">
+        <h3>Température</h3>
+        <div class="stat-value">{{ getAverageValue('temperature') | number:'1.1-1' }} <span>°C</span></div>
+        <div class="stat-subtitle">Température moyenne</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="charts-section">
+    <div class="section-header">
+      <h2>Évolution des Données</h2>
+      <div class="chart-controls">
+        <button [class.active]="selectedChartView === 'daily'" (click)="setChartView('daily')">Journalier</button>
+        <button [class.active]="selectedChartView === 'weekly'" (click)="setChartView('weekly')">Hebdomadaire</button>
+        <button [class.active]="selectedChartView === 'monthly'" (click)="setChartView('monthly')">Mensuel</button>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <!-- Graphique de consommation électrique -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Consommation Électrique</h3>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color voltage-color"></span>
+              <span>Tension (V)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color current-color"></span>
+              <span>Courant (A)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color power-color"></span>
+              <span>Puissance (W)</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas #powerChart></canvas>
+        </div>
+      </div>
+
+      <!-- Graphique de luminosité -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Luminosité</h3>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color light-color"></span>
+              <span>Niveau de lumière (lux)</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas #lightChart></canvas>
+        </div>
+      </div>
+
+      <!-- Graphique de qualité de l'air -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Qualité de l'Air</h3>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color gas-color"></span>
+              <span>Niveau de gaz (ppm)</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas #gasChart></canvas>
+        </div>
+      </div>
+
+      <!-- Graphique de température et humidité -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Température et Humidité</h3>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color temp-color"></span>
+              <span>Température (°C)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color humidity-color"></span>
+              <span>Humidité (%)</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas #tempHumidityChart></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="section-header">
+      <h2>Filtres</h2>
+      <button class="reset-btn" (click)="resetFilters()">
+        <i class="fas fa-redo-alt"></i>
+        Réinitialiser
+      </button>
+    </div>
+
+    <div class="filters-grid">
+      <!-- Filtre par emplacement -->
+      <div class="filter-group">
+        <label>Emplacement</label>
+        <div class="filter-options">
+          <button *ngFor="let location of filterOptions.locations" 
+                  [class.active]="selectedLocation === location"
+                  (click)="filterByLocation(location)">
+            {{ location }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtre par type de capteur -->
+      <div class="filter-group">
+        <label>Type de capteur</label>
+        <div class="filter-options">
+          <button *ngFor="let topic of filterOptions.topics" 
+                  [class.active]="selectedTopic === topic"
+                  (click)="filterByTopic(topic)">
+            {{ topic === 'Tous' ? 'Tous' : getSensorType(topic) }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtre par plage de dates -->
+      <div class="filter-group">
+        <label>Période</label>
+        <div class="filter-options">
+          <button *ngFor="let range of filterOptions.dateRanges" 
+                  [class.active]="selectedDateRange === range"
+                  (click)="filterByDateRange(range)">
+            {{ range }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Dates personnalisées -->
+      <div class="filter-group custom-date-group" *ngIf="selectedDateRange === 'Personnalisé'">
+        <div class="date-inputs">
+          <div class="date-input">
+            <label>Du</label>
+            <input type="date" [(ngModel)]="startDate" (change)="applyFilters()">
+          </div>
+          <div class="date-input">
+            <label>Au</label>
+            <input type="date" [(ngModel)]="endDate" (change)="applyFilters()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des données -->
+  <div class="data-table-section">
+    <div class="section-header">
+      <h2>Données Détaillées</h2>
+      <div class="table-controls">
+        <button class="export-btn">
+          <i class="fas fa-file-export"></i>
+          Exporter
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Horodatage</th>
+            <th>Emplacement</th>
+            <th>Type</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">Tension (V)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">Courant (A)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">Puissance (W)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/ldr'">Luminosité (lux)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/mq2'">Qualité Air (ppm)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">Température (°C)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">Humidité (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredData">
+            <td>{{ formatDate(item.timestamp) }}</td>
+            <td>{{ item.location }}</td>
+            <td>
+              <span class="sensor-badge" [ngClass]="getSensorType(item.topic).toLowerCase()">
+                {{ getSensorType(item.topic) }}
+              </span>
+            </td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">{{ item.voltage !== null ? (item.voltage | number:'1.1-1') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">{{ item.current !== null ? (item.current | number:'1.3-3') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">{{ item.power !== null ? (item.power | number:'1.1-1') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/ldr'">{{ item.light_level !== null ? (item.light_level | number:'1.0-0') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/mq2'">{{ item.gas_level !== null ? (item.gas_level | number:'1.0-0') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">{{ item.temperature !== null ? (item.temperature | number:'1.1-1') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">{{ item.humidity !== null ? (item.humidity | number:'1.0-0') : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pas de données -->
+    <div class="no-data" *ngIf="filteredData.length === 0">
+      <div class="no-data-icon">
+        <i class="fas fa-database"></i>
+      </div>
+      <h3>Aucune donnée trouvée</h3>
+      <p>Essayez de modifier vos filtres ou de sélectionner une autre période.</p>
+    </div>
+  </div>
+</div>

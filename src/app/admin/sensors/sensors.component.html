@@ -1,0 +1,238 @@
+<div class="sensors-container">
+  <h2>Tableau de bord des capteurs</h2>
+  
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+  </div>
+  
+  <div *ngIf="!loading && !error" class="dashboard">
+    <!-- Résumé des capteurs -->
+    <div class="summary-cards">
+      <div class="card summary-card">
+        <div class="card-icon ldr">💡</div>
+        <div class="card-content">
+          <h3>Luminosité</h3>
+          <p class="card-value">{{ getAverageValueByType('LDR') | number:'1.0-0' }}</p>
+          <p class="card-subtitle">Moyenne</p>
+        </div>
+      </div>
+      
+      <div class="card summary-card">
+        <div class="card-icon mq2">🔥</div>
+        <div class="card-content">
+          <h3>Gaz (MQ2)</h3>
+          <p class="card-value">{{ getAverageValueByType('MQ2') | number:'1.0-0' }}</p>
+          <p class="card-subtitle">Moyenne</p>
+        </div>
+      </div>
+      
+      <div class="card summary-card">
+        <div class="card-icon pzem">⚡</div>
+        <div class="card-content">
+          <h3>Tension</h3>
+          <p class="card-value">{{ getAveragePzemValue('voltage') | number:'1.0-0' }}V</p>
+          <p class="card-subtitle">Moyenne</p>
+        </div>
+      </div>
+      
+      <div class="card summary-card">
+        <div class="card-icon pzem">🔌</div>
+        <div class="card-content">
+          <h3>Puissance</h3>
+          <p class="card-value">{{ getAveragePzemValue('power') | number:'1.1-1' }}W</p>
+          <p class="card-subtitle">Moyenne</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Graphiques -->
+    <div class="charts-container">
+      <div class="card chart-card">
+        <h3>Évolution de la luminosité</h3>
+        <div class="chart-container">
+          <canvas #lightChart></canvas>
+        </div>
+      </div>
+      
+      <div class="card chart-card">
+        <h3>Évolution du gaz (MQ2)</h3>
+        <div class="chart-container">
+          <canvas #gasChart></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Carte spéciale pour PZEM -->
+    <div class="card pzem-card">
+      <h3>Données électriques (PZEM)</h3>
+      <div class="pzem-grid">
+        <div class="pzem-item">
+          <div class="pzem-icon">⚡</div>
+          <div class="pzem-value">{{ getLatestPzemValue('voltage') | number:'1.0-0' }}V</div>
+          <div class="pzem-label">Tension</div>
+        </div>
+        <div class="pzem-item">
+          <div class="pzem-icon">🔄</div>
+          <div class="pzem-value">{{ getLatestPzemValue('current') | number:'1.2-2' }}A</div>
+          <div class="pzem-label">Courant</div>
+        </div>
+        <div class="pzem-item">
+          <div class="pzem-icon">🔌</div>
+          <div class="pzem-value">{{ getLatestPzemValue('power') | number:'1.1-1' }}W</div>
+          <div class="pzem-label">Puissance</div>
+        </div>
+        <div class="pzem-item">
+          <div class="pzem-icon">⚙️</div>
+          <div class="pzem-value">{{ getLatestPzemValue('energy') | number:'1.3-3' }}kWh</div>
+          <div class="pzem-label">Énergie</div>
+        </div>
+        <div class="pzem-item">
+          <div class="pzem-icon">📊</div>
+          <div class="pzem-value">{{ getLatestPzemValue('frequency') | number:'1.1-1' }}Hz</div>
+          <div class="pzem-label">Fréquence</div>
+        </div>
+        <div class="pzem-item">
+          <div class="pzem-icon">📈</div>
+          <div class="pzem-value">{{ getLatestPzemValue('power_factor') | number:'1.2-2' }}</div>
+          <div class="pzem-label">Facteur de puissance</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- New PZEM Table -->
+    <div class="card pzem-table-card" *ngIf="hasPzemSensors()">
+      <h3>Historique des mesures PZEM</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID Capteur</th>
+              <th>Tension (V)</th>
+              <th>Courant (A)</th>
+              <th>Puissance (W)</th>
+              <th>Énergie (kWh)</th>
+              <th>Fréquence (Hz)</th>
+              <th>Facteur de puissance</th>
+              <th>Emplacement</th>
+              <th>Horodatage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sensor of getPzemSensors()">
+              <td>{{ sensor.sensor_id }}</td>
+              <td>{{ sensor.voltage | number:'1.0-0' }}</td>
+              <td>{{ sensor.current | number:'1.2-2' }}</td>
+              <td>{{ sensor.power | number:'1.1-1' }}</td>
+              <td>{{ sensor.energy | number:'1.3-3' }}</td>
+              <td>{{ sensor.frequency | number:'1.1-1' }}</td>
+              <td>{{ sensor.power_factor | number:'1.2-2' }}</td>
+              <td>{{ sensor.location }}</td>
+              <td>{{ formatDate(sensor.timestamp) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Existing data table card -->
+    <div class="card data-table-card">
+      <h3>Données détaillées des capteurs</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID Capteur</th>
+              <th>Type</th>
+              <th>Valeur</th>
+              <th>Emplacement</th>
+              <th>Horodatage</th>
+              <th *ngIf="hasPzemSensors()">Détails</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sensor of sensors">
+              <td>{{ sensor.sensor_id }}</td>
+              <td>
+                <span class="sensor-type" [ngClass]="sensor.type.toLowerCase()">
+                  {{ sensor.type }}
+                </span>
+              </td>
+              <td>{{ sensor.value }}{{ getSensorUnit(sensor.type) }}</td>
+              <td>{{ sensor.location }}</td>
+              <td>{{ formatDate(sensor.timestamp) }}</td>
+              <td *ngIf="hasPzemSensors()">
+                <button *ngIf="sensor.type === 'PZEM'" class="details-btn" (click)="showPzemDetails(sensor)">
+                  Voir détails
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="pagination">
+        <button class="btn" [disabled]="!previousPageUrl" (click)="loadPreviousPage()">
+          <span class="btn-icon">←</span> Précédent
+        </button>
+        <span class="page-info">Page {{ currentPage }} sur {{ totalPages }}</span>
+        <button class="btn" [disabled]="!nextPageUrl" (click)="loadNextPage()">
+          Suivant <span class="btn-icon">→</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Modal pour les détails PZEM -->
+    <div class="pzem-modal" *ngIf="selectedPzem" (click)="closePzemDetails()">
+      <div class="pzem-modal-content" (click)="$event.stopPropagation()">
+        <div class="pzem-modal-header">
+          <h3>Détails du capteur PZEM</h3>
+          <button class="close-btn" (click)="closePzemDetails()">×</button>
+        </div>
+        <div class="pzem-modal-body">
+          <div class="pzem-detail-item">
+            <span class="detail-label">ID:</span>
+            <span class="detail-value">{{ selectedPzem.sensor_id }}</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Tension:</span>
+            <span class="detail-value">{{ selectedPzem.voltage }} V</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Courant:</span>
+            <span class="detail-value">{{ selectedPzem.current }} A</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Puissance:</span>
+            <span class="detail-value">{{ selectedPzem.power }} W</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Énergie:</span>
+            <span class="detail-value">{{ selectedPzem.energy }} kWh</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Fréquence:</span>
+            <span class="detail-value">{{ selectedPzem.frequency }} Hz</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Facteur de puissance:</span>
+            <span class="detail-value">{{ selectedPzem.power_factor }}</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Emplacement:</span>
+            <span class="detail-value">{{ selectedPzem.location }}</span>
+          </div>
+          <div class="pzem-detail-item">
+            <span class="detail-label">Horodatage:</span>
+            <span class="detail-value">{{ formatDate(selectedPzem.timestamp) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

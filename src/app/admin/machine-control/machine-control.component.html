@@ -1,0 +1,233 @@
+
+
+<div class="machine-control-container">
+  <div class="page-header">
+    <h1>Panneau de contrôle des machines</h1>
+    <p>Surveillez et contrôlez les machines dans tous les secteurs en temps réel</p>
+  </div>
+
+  <!-- Vue d'ensemble du contrôle -->
+  <div class="control-overview">
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon active">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Machines actives</h3>
+          <p class="stat-value">{{ activeMachines }} / {{ totalMachines }}</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon power">
+          <i class="fas fa-plug"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Consommation actuelle</h3>
+          <p class="stat-value">{{ currentPowerUsage.toFixed(1) }} kW</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon efficiency" [ngClass]="getEfficiencyClass(averageEfficiency)">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Efficacité moyenne</h3>
+          <p class="stat-value">{{ averageEfficiency.toFixed(1) }}%</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon mode" [ngClass]="currentMode === MODE_AUTOMATIC ? 'mode-auto' : 'mode-manual'">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <div class="stat-info">
+          <h3>Mode actuel</h3>
+          <p class="stat-value">{{ currentMode === MODE_AUTOMATIC ? 'Automatique' : 'Manuel' }}</p>
+       
+        </div>
+      </div>
+    </div>
+    
+    <!-- Alertes récentes -->
+    <div class="alerts-container">
+      <div class="alerts-header">
+        <h3>Alertes récentes</h3>
+        <button class="btn-clear" *ngIf="alerts.length > 0" (click)="clearAllAlerts()">Effacer tout</button>
+      </div>
+      
+      <div class="alerts-list" *ngIf="alerts.length > 0">
+        <div class="alert-item" *ngFor="let alert of alerts.slice(0, 3)" [ngClass]="alert.severity">
+          <div class="alert-icon">
+            <i class="fas" [ngClass]="{
+              'fa-exclamation-circle': alert.severity === 'critical',
+              'fa-exclamation-triangle': alert.severity === 'warning',
+              'fa-info-circle': alert.severity === 'info'
+            }"></i>
+          </div>
+          <div class="alert-content">
+            <h4>{{ alert.alert_type }}</h4>
+            <p>{{ alert.message }}</p>
+            <div class="alert-meta">
+              <span class="alert-time">{{ alert.time | date:'short' }}</span>
+              <span class="alert-machine" *ngIf="alert.machineName">{{ alert.machineName }}</span>
+            </div>
+          </div>
+          <button class="btn-dismiss" (click)="dismissAlert(alert)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="no-alerts" *ngIf="alerts.length === 0">
+        <i class="fas fa-check-circle"></i>
+        <p>Aucune alerte active</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de recherche et filtres -->
+  <div class="search-filter-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher une salle..." [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+    
+    <div class="filter-container">
+      <div class="filter-group">
+        <label>Filtrer par statut:</label>
+        <div class="filter-options">
+          <button class="filter-btn" [class.active]="selectedStatus === 'all'" (click)="filterByStatus('all')">Tous</button>
+          <button class="filter-btn" [class.active]="selectedStatus === 'on'" (click)="filterByStatus('on')">Actifs</button>
+          <button class="filter-btn" [class.active]="selectedStatus === 'off'" (click)="filterByStatus('off')">Inactifs</button>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label>Filtrer par mode:</label>
+        <div class="filter-options">
+          <button class="filter-btn" [class.active]="selectedMode === 'all'" (click)="filterByMode('all')">Tous</button>
+          <button class="filter-btn" [class.active]="selectedMode === 'auto'" (click)="filterByMode('auto')">Automatique</button>
+          <button class="filter-btn" [class.active]="selectedMode === 'manual'" (click)="filterByMode('manual')">Manuel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des appareils par salle -->
+  <div class="rooms-container">
+    <h2>Contrôle des appareils par salle</h2>
+    
+    <!-- Message si aucune salle ne correspond aux filtres -->
+    <div class="no-results" *ngIf="filteredRooms.length === 0">
+      <i class="fas fa-search-minus"></i>
+      <p>Aucune salle ne correspond à vos critères de recherche</p>
+      <button class="btn-reset" (click)="resetFilters()">Réinitialiser les filtres</button>
+    </div>
+    
+    <div class="room-grid">
+      <div class="room-card" *ngFor="let room of getPaginatedRooms()">
+        <div class="room-header">
+          <h3 class="room-name">{{ room.location }}</h3>
+          <div class="room-mode" [ngClass]="{'mode-auto': room.mode === 1, 'mode-manual': room.mode === 0}">
+            {{ room.mode === 1 ? 'Automatique' : 'Manuel' }}
+          </div>
+        </div>
+        
+        <div class="devices-container">
+          <!-- Climatisation -->
+          <div class="device-item">
+            <div class="device-icon clim">
+              <i class="fas fa-snowflake"></i>
+            </div>
+            <div class="device-info">
+              <span class="device-name">Climatisation</span>
+              <span class="device-status" [ngClass]="{'status-on': isDeviceOn(room, 'clim')}">
+                {{ isDeviceOn(room, 'clim') ? 'ON' : 'OFF' }}
+              </span>
+            </div>
+            <div class="device-controls" *ngIf="room.mode === 0">
+              <button class="btn-device" 
+                      [ngClass]="{'btn-on': isDeviceOn(room, 'clim')}"
+                      (click)="controlDevice(room.location, 'clim', getToggleAction(room, 'clim'))">
+                {{ getButtonText(room, 'clim') }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Chauffage -->
+          <div class="device-item">
+            <div class="device-icon chauf">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="device-info">
+              <span class="device-name">Chauffage</span>
+              <span class="device-status" [ngClass]="{'status-on': isDeviceOn(room, 'chauf')}">
+                {{ isDeviceOn(room, 'chauf') ? 'ON' : 'OFF' }}
+              </span>
+            </div>
+            <div class="device-controls" *ngIf="room.mode === 0">
+              <button class="btn-device" 
+                      [ngClass]="{'btn-on': isDeviceOn(room, 'chauf')}"
+                      (click)="controlDevice(room.location, 'chauf', getToggleAction(room, 'chauf'))">
+                {{ getButtonText(room, 'chauf') }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Lampe -->
+          <div class="device-item">
+            <div class="device-icon lamp">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="device-info">
+              <span class="device-name">Lampe</span>
+              <span class="device-status" [ngClass]="{'status-on': isDeviceOn(room, 'lamp')}">
+                {{ isDeviceOn(room, 'lamp') ? 'ON' : 'OFF' }}
+              </span>
+            </div>
+            <div class="device-controls" *ngIf="room.mode === 0">
+              <button class="btn-device" 
+                      [ngClass]="{'btn-on': isDeviceOn(room, 'lamp')}"
+                      (click)="controlDevice(room.location, 'lamp', getToggleAction(room, 'lamp'))">
+                {{ getButtonText(room, 'lamp') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="room-actions">
+          <button class="btn-mode" (click)="updateRoomMode(room.location, room.mode === 0 ? 1 : 0)">
+            Passer en mode {{ getModeText(room.mode) }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pagination pour les salles -->
+  <div class="pagination-container" *ngIf="totalPages > 1">
+    <div class="pagination">
+      <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+        Précédent
+      </button>
+      
+      <div class="page-numbers">
+        <button *ngFor="let page of getPageNumbers()" 
+                class="page-btn" 
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      
+      <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        Suivant
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
