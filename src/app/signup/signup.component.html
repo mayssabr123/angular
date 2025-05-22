@@ -1,87 +1,112 @@
 <div class="signup-container">
-  <div class="signup-card">
-    <div class="signup-header">
-      <h1>Créer un compte</h1>
-      <p>Rejoignez-nous dès aujourd'hui</p>
+  <div class="signup-content">
+    <!-- Section gauche avec image et texte -->
+    <div class="signup-branding">
+      <div class="brand-logo">
+        <div class="sotetel-logo"></div>
+      </div>
+      <div class="brand-image">
+        <div class="iot-innovation-image"></div>
+      </div>
+      <div class="brand-text">
+        <h2>Rejoignez l'écosystème Sotetel</h2>
+        <p>Créez votre compte pour accéder à notre plateforme IoT. Sotetel est un leader tunisien dans le domaine des télécommunications et des solutions IoT, offrant des services innovants pour la gestion intelligente des infrastructures.</p>
+      </div>
     </div>
 
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
-      <div class="form-group">
-        <label for="username">Nom d'utilisateur</label>
-        <input
-          type="text"
-          id="username"
-          formControlName="username"
-          placeholder="Choisissez un nom d'utilisateur"
-          [class.is-invalid]="signupForm.get('username')?.invalid && signupForm.get('username')?.touched"
-        >
-        <div class="error-message" *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched">
-          <span *ngIf="signupForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</span>
-          <span *ngIf="signupForm.get('username')?.errors?.['minlength']">Le nom d'utilisateur doit contenir au moins 3 caractères</span>
+    <!-- Section droite avec formulaire -->
+    <div class="signup-form-container">
+      <div class="signup-header">
+        <h1>Inscription</h1>
+        <p>Créez votre compte</p>
+      </div>
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            placeholder="Choisissez un nom d'utilisateur"
+            [class.is-invalid]="signupForm.get('username')?.invalid && signupForm.get('username')?.touched"
+          >
+          <div class="error-message" *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched">
+            <span *ngIf="signupForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</span>
+            <span *ngIf="signupForm.get('username')?.errors?.['minlength']">Le nom d'utilisateur doit contenir au moins 3 caractères</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          placeholder="Entrez votre email"
-          [class.is-invalid]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched"
-        >
-        <div class="error-message" *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
-          <span *ngIf="signupForm.get('email')?.errors?.['required']">L'email est requis</span>
-          <span *ngIf="signupForm.get('email')?.errors?.['email']">Veuillez entrer un email valide</span>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Entrez votre email"
+            [class.is-invalid]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched"
+          >
+          <div class="error-message" *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+            <span *ngIf="signupForm.get('email')?.errors?.['required']">L'email est requis</span>
+            <span *ngIf="signupForm.get('email')?.errors?.['email']">Veuillez entrer un email valide</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          placeholder="Créez un mot de passe"
-          [class.is-invalid]="signupForm.get('password')?.invalid && signupForm.get('password')?.touched"
-        >
-        <div class="error-message" *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
-          <span *ngIf="signupForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
-          <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            placeholder="Créez un mot de passe"
+            [class.is-invalid]="signupForm.get('password')?.invalid && signupForm.get('password')?.touched"
+          >
+          <div class="error-message" *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
+            <span *ngIf="signupForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group location-field">
-        <label for="location">Localisation</label>
-        <select 
-          id="location" 
-          formControlName="location" 
-          class="form-control custom-select"
-          [ngClass]="{'is-invalid': signupForm.get('location')?.invalid && signupForm.get('location')?.touched}">
-          <option value="" disabled selected>Sélectionnez votre localisation</option>
-          <option *ngFor="let option of locationOptions" [value]="option.value">
-            {{option.label}}
-          </option>
-        </select>
-        <div *ngIf="signupForm.get('location')?.invalid && signupForm.get('location')?.touched" class="invalid-feedback">
-          La localisation est requise
+        <div class="form-group location-field">
+          <label for="location">Localisation</label>
+          <div class="custom-select-container">
+            <div class="select-icon">
+              <i class="fa fa-map-marker-alt"></i>
+            </div>
+            <select 
+              id="location" 
+              formControlName="location" 
+              class="form-control custom-select"
+              [ngClass]="{'is-invalid': signupForm.get('location')?.invalid && signupForm.get('location')?.touched}">
+              <option value="" disabled selected>Sélectionnez votre localisation</option>
+              <option *ngFor="let option of locationOptions" [value]="option.value">
+                {{option.label}}
+              </option>
+            </select>
+            <div class="select-arrow">
+              <i class="fa fa-chevron-down"></i>
+            </div>
+          </div>
+          <div *ngIf="signupForm.get('location')?.invalid && signupForm.get('location')?.touched" class="invalid-feedback">
+            La localisation est requise
+          </div>
         </div>
-      </div>
-      
-      <div class="error-message" *ngIf="apiError">
-        {{ apiError }}
-      </div>
+        
+        <div class="error-message" *ngIf="apiError">
+          {{ apiError }}
+        </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-signup" [disabled]="isSubmitting">
-          <span *ngIf="!isSubmitting">S'inscrire</span>
-          <span class="spinner" *ngIf="isSubmitting"></span>
-        </button>
-      </div>
-    </form>
+        <div class="form-actions">
+          <button type="submit" class="btn-signup" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">S'inscrire</span>
+            <span class="spinner" *ngIf="isSubmitting"></span>
+          </button>
+        </div>
+      </form>
 
-    <div class="signup-footer">
-      <p>Vous avez déjà un compte? <a (click)="navigateToLogin()" class="login-link">Se connecter</a></p>
+      <div class="signup-footer">
+        <p>Vous avez déjà un compte? <a (click)="navigateToLogin()" class="login-link">Se connecter</a></p>
+      </div>
     </div>
   </div>
 </div>

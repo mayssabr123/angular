@@ -1,53 +1,70 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <h1>Connexion</h1>
-      <p>Bienvenue sur notre plateforme</p>
+  <div class="login-content">
+    <!-- Section gauche avec image et texte -->
+    <div class="login-branding">
+      <div class="brand-logo">
+        <div class="sotetel-logo"></div>
+      </div>
+      <div class="brand-image">
+        <div class="iot-building-image"></div>
+      </div>
+      <div class="brand-text">
+        <h2>Sotetel - Solutions IoT Innovantes</h2>
+        <p>Bienvenue sur notre plateforme de gestion intelligente des bâtiments. Optimisez votre consommation énergétique et améliorez le confort de vos espaces grâce à nos solutions IoT de pointe.</p>
+      </div>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <div class="form-group">
-        <label for="username">Nom d'utilisateur</label>
-        <input
-          type="text"
-          id="username"
-          formControlName="username"
-          placeholder="Entrez votre nom d'utilisateur"
-          [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
-        >
-        <div class="error-message" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-          <span *ngIf="loginForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</span>
+    <!-- Section droite avec formulaire -->
+    <div class="login-form-container">
+      <div class="login-header">
+        <h1>Connexion</h1>
+        <p>Bienvenue sur notre plateforme</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            placeholder="Entrez votre nom d'utilisateur"
+            [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          >
+          <div class="error-message" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+            <span *ngIf="loginForm.get('username')?.errors?.['required']">Le nom d'utilisateur est requis</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          placeholder="Entrez votre mot de passe"
-          [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-        >
-        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          <span *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            placeholder="Entrez votre mot de passe"
+            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          >
+          <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+          </div>
         </div>
-      </div>
-      
-      <div class="error-message" *ngIf="apiError">
-        {{ apiError }}
-      </div>
+        
+        <div class="error-message" *ngIf="apiError">
+          {{ apiError }}
+        </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-login" [disabled]="isSubmitting">
-          <span *ngIf="!isSubmitting">Se connecter</span>
-          <span class="spinner" *ngIf="isSubmitting"></span>
-        </button>
-      </div>
-    </form>
+        <div class="form-actions">
+          <button type="submit" class="btn-login" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">Se connecter</span>
+            <span class="spinner" *ngIf="isSubmitting"></span>
+          </button>
+        </div>
+      </form>
 
-    <div class="login-footer">
-      <p>Vous n'avez pas de compte? <a (click)="navigateToSignup()" class="signup-link">S'inscrire</a></p>
+      <div class="login-footer">
+        <p>Vous n'avez pas de compte? <a (click)="navigateToSignup()" class="signup-link">S'inscrire</a></p>
+      </div>
     </div>
   </div>
 </div>

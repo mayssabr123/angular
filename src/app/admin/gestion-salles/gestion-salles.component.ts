@@ -247,4 +247,65 @@ export class GestionSallesComponent implements OnInit {
       (user.location && user.location.toLowerCase().includes(query))
     );
   }
+
+  // Variables pour la modal de confirmation
+  showDeleteModal = false;
+  userToDelete: string | null = null;
+  deleteInProgress = false;
+  deleteError: string | null = null;
+
+  confirmDeleteUser(email: string): void {
+    this.userToDelete = email;
+    this.showDeleteModal = true;
+    this.deleteError = null;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+    this.userToDelete = null;
+    this.deleteInProgress = false;
+    this.deleteError = null;
+  }
+
+  proceedWithDelete(): void {
+    if (!this.userToDelete) {
+      return;
+    }
+
+    this.deleteInProgress = true;
+    this.deleteError = null;
+
+    const payload = {
+      email: this.userToDelete
+    };
+
+    this.http.delete('http://127.0.0.1:8000/accounts/delete_user_by_email/', {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: payload,
+      withCredentials: true
+    }).subscribe({
+      next: (response: any) => {
+        console.log('Utilisateur supprimé avec succès', response);
+        this.loadAllUsers();
+        this.showDeleteModal = false;
+        this.userToDelete = null;
+        this.deleteInProgress = false;
+      },
+      error: (error: any) => {
+        console.error(`Erreur lors de la suppression de l'utilisateur ${this.userToDelete}`, error);
+        this.deleteInProgress = false;
+        this.deleteError = error.error && error.error.error 
+          ? error.error.error 
+          : "Une erreur s'est produite lors de la suppression de l'utilisateur.";
+      }
+    });
+  }
+
+  // Méthode existante à remplacer
+  deleteUser(email: string): void {
+    // Cette méthode est remplacée par confirmDeleteUser, proceedWithDelete et cancelDelete
+    // Vous pouvez la supprimer si elle n'est pas utilisée ailleurs
+  }
 }

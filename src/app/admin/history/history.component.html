@@ -3,7 +3,60 @@
     <h1>Tableau de Bord des Capteurs</h1>
     <p>Visualisez et analysez les données de vos capteurs en temps réel</p>
   </div>
-
+<!-- Vue d'ensemble du contrôle --> 
+<div class="control-overview"> 
+  <!-- Alertes récentes --> 
+  <div class="alerts-container modern-alerts">
+    <div class="alerts-header">
+      <div class="header-left">
+        <h3><i class="fas fa-bell"></i> Alertes récentes</h3>
+        <span class="alert-count" *ngIf="alerts.length > 0">{{ alerts.length }}</span>
+      </div>
+      <button class="btn-clear" *ngIf="alerts.length > 0" (click)="clearAllAlerts()">
+        <i class="fas fa-trash-alt"></i> Effacer tout
+      </button>
+    </div>
+    
+    <div class="alerts-list" *ngIf="alerts.length > 0">
+      <div class="alert-item" *ngFor="let alert of alerts.slice(0, 3)" [ngClass]="alert.severity">
+        <div class="alert-icon">
+          <i class="fas" [ngClass]="{
+            'fa-exclamation-circle': alert.severity === 'critical',
+            'fa-exclamation-triangle': alert.severity === 'warning',
+            'fa-info-circle': alert.severity === 'info'
+          }"></i>
+        </div>
+        <div class="alert-content">
+          <div class="alert-header">
+            <h4>{{ alert.alert_type }}</h4>
+            <span class="severity-badge" [ngClass]="alert.severity">
+              {{ alert.severity === 'critical' ? 'Critique' : 
+                 alert.severity === 'warning' ? 'Avertissement' : 'Information' }}
+            </span>
+          </div>
+          <p>{{ alert.message }}</p>
+          <div class="alert-meta">
+            <span class="alert-time"><i class="far fa-clock"></i> {{ alert.time | date:'short' }}</span>
+            <span class="alert-machine" *ngIf="alert.machineName">
+              <i class="fas fa-server"></i> {{ alert.machineName }}
+            </span>
+          </div>
+        </div>
+        <button class="btn-dismiss" (click)="dismissAlert(alert)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="no-alerts" *ngIf="alerts.length === 0">
+      <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <p>Aucune alerte active</p>
+        <span>Tout fonctionne correctement</span>
+      </div>
+    </div>
+  </div>
+</div>
   <!-- Cartes de statistiques -->
   <div class="stats-cards">
     <div class="stat-card power-card">
@@ -263,3 +316,4 @@
     </div>
   </div>
 </div>
+

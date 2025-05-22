@@ -3,22 +3,85 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #43cea2, #185a9d);
+  background: linear-gradient(120deg, #f5f7fa, #e9ecef);
   padding: 20px;
 }
 
-.signup-card {
+.signup-content {
+  display: flex;
   width: 100%;
-  max-width: 500px;
+  max-width: 1200px;
+  min-height: 650px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  transition: transform 0.3s ease;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
-  &:hover {
-    transform: translateY(-5px);
+/* Section gauche - Branding */
+.signup-branding {
+  flex: 1;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-logo {
+  margin-bottom: 30px;
+  
+  img {
+    height: 60px;
+    max-width: 100%;
   }
+}
+
+.brand-image {
+  margin: 20px 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.brand-text {
+  margin-top: 30px;
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+}
+
+/* Section droite - Formulaire */
+.signup-form-container {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
 }
 
 .signup-header {
@@ -26,9 +89,10 @@
   margin-bottom: 30px;
 
   h1 {
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 8px;
+    font-size: 32px;
+    color: #1e3c72;
+    margin-bottom: 10px;
+    font-weight: 700;
   }
 
   p {
@@ -38,6 +102,16 @@
 }
 
 .signup-form {
+  .form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    
+    .form-group {
+      flex: 1;
+    }
+  }
+
   .form-group {
     margin-bottom: 20px;
 
@@ -46,57 +120,79 @@
       margin-bottom: 8px;
       font-weight: 500;
       color: #444;
+      font-size: 15px;
     }
 
     input {
       width: 100%;
-      padding: 12px 16px;
+      padding: 14px 16px;
       border: 1px solid #ddd;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
 
       &:focus {
         outline: none;
-        border-color: #43cea2;
-        box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.2);
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.2);
       }
 
       &.is-invalid {
-        border-color: #ff4d4f;
+        border-color: #e63946;
       }
     }
 
     .error-message {
-      color: #ff4d4f;
+      color: #e63946;
       font-size: 14px;
       margin-top: 6px;
     }
   }
 
   .form-actions {
-    margin-top: 32px;
+    margin-top: 30px;
 
     .btn-signup {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #43cea2, #185a9d);
+      padding: 16px;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.3s, transform 0.2s;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
 
       &:hover {
-        opacity: 0.9;
         transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
 
       &:disabled {
         opacity: 0.7;
         cursor: not-allowed;
+      }
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+      }
+      
+      &:hover::before {
+        left: 100%;
       }
     }
   }
@@ -104,19 +200,22 @@
 
 .signup-footer {
   text-align: center;
-  margin-top: 24px;
+  margin-top: 25px;
 
   p {
     color: #666;
+    font-size: 15px;
   }
 
   .login-link {
-    color: #185a9d;
+    color: #1e3c72;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
+    transition: color 0.3s ease;
 
     &:hover {
+      color: #2a5298;
       text-decoration: underline;
     }
   }
@@ -136,101 +235,184 @@
   to { transform: rotate(360deg); }
 }
 
-
-// Styles améliorés pour le champ de localisation
-.location-field {
-  margin-bottom: 1.5rem;
-  
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
+/* Responsive design */
+@media (max-width: 992px) {
+  .signup-content {
+    flex-direction: column;
+    max-width: 600px;
   }
   
-  .custom-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
+  .signup-branding, .signup-form-container {
+    flex: none;
     width: 100%;
-    font-size: 1rem;
-    line-height: 1.5;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    
-    &:focus {
-      border-color: #80bdff;
-      outline: 0;
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-    
-    &.is-invalid {
-      border-color: #dc3545;
-      padding-right: calc(1.5em + 0.75rem);
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right calc(0.375em + 0.1875rem) center;
-      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-      
-      &:focus {
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-      }
-    }
-    
-    option {
-      padding: 0.5rem;
-    }
   }
   
-  .invalid-feedback {
-    display: block;
-    width: 100%;
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
-    color: #dc3545;
+  .signup-branding {
+    padding: 30px;
   }
-}
-
-// Animation pour le champ de localisation
-@keyframes highlight {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(0, 123, 255, 0.1); }
-  100% { background-color: transparent; }
-}
-
-.location-field .custom-select:focus {
-  animation: highlight 1s ease-in-out;
-}
-
-// Style pour les options de localisation
-.location-field .custom-select option {
-  background-color: white;
-  color: #333;
   
-  &:hover, &:focus {
-    background-color: #f8f9fa;
+  .brand-text h2 {
+    font-size: 22px;
+  }
+  
+  .brand-text p {
+    font-size: 14px;
   }
 }
 
-// Responsive design pour les petits écrans
 @media (max-width: 576px) {
-  .location-field .custom-select {
-    font-size: 0.9rem;
-    padding: 0.6rem 0.8rem;
+  .signup-container {
+    padding: 10px;
+  }
+  
+  .signup-form-container {
+    padding: 30px 20px;
+  }
+  
+  .signup-branding {
+    padding: 20px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
   }
 }
 
+/* Style amélioré pour le sélecteur de localisation */
+.location-field {
+  margin-bottom: 25px;
+}
 
-// Style spécifique pour le champ username
-input#username {
-  &:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+.custom-select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.custom-select-container:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-color: #2a5298;
+}
+
+.select-icon {
+  position: absolute;
+  left: 15px;
+  color: #1e3c72;
+  font-size: 18px;
+  z-index: 1;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 15px;
+  color: #1e3c72;
+  font-size: 14px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 14px 40px 14px 40px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #444;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.custom-select:focus {
+  outline: none;
+}
+
+.custom-select:focus + .select-arrow {
+  transform: rotate(180deg);
+}
+
+.custom-select option {
+  padding: 10px;
+  font-size: 15px;
+}
+
+.invalid-feedback {
+  color: #e63946;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* Animation pour le sélecteur */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(42, 82, 152, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(42, 82, 152, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(42, 82, 152, 0); }
+}
+
+.custom-select-container:focus-within {
+  animation: pulse 1.5s;
+  border-color: #2a5298;
+}
+
+/* Images stylisées */
+/* Images stylisées */
+.sotetel-logo {
+  width: 200px;
+  height: 80px;
+  background: url('https://www.sotetel.tn/wp-content/uploads/2019/04/logo2.png') no-repeat center center;
+  background-size: contain;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
   }
+}
+
+.iot-innovation-image {
+  width: 100%;
+  height: 250px;
+  background: url('https://www.cisco.com/c/dam/assets/swa/img/anchor-info/what-is-a-smart-building-628x353.png') no-repeat center center;
+  background-size: cover;
+  border-radius: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4));
+    border-radius: 25px;
+    z-index: 1;
+  }
+}
+
+/* Ajustements pour les conteneurs d'images */
+.brand-logo, .brand-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

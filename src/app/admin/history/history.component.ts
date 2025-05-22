@@ -18,6 +18,15 @@ interface SensorData {
   timestamp: string;
 }
 
+interface Alert {
+  id: string;
+  alert_type: string;
+  message: string;
+  severity: string;
+  time: string;
+  machineName?: string;
+}
+
 @Component({
   selector: 'app-history',
   standalone: true,
@@ -54,17 +63,38 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   @ViewChild('gasChart') gasChartRef!: ElementRef;
   @ViewChild('tempHumidityChart') tempHumidityChartRef!: ElementRef;
   
-  // Objets pour stocker les instances de graphiques
+  // Objets pour stocker les instances de graphiques - déclarés comme any
   powerChart: any;
   lightChart: any;
   gasChart: any;
   tempHumidityChart: any;
 
+  // Constantes pour les modes
+  readonly MODE_AUTOMATIC: any = 'automatic';
+  readonly MODE_MANUAL: any = 'manual';
+
+  // Propriétés pour les statistiques
+  activeMachines: any = 0;
+  totalMachines: any = 0;
+  currentPowerUsage: any = 0;
+  averageEfficiency: any = 0;
+  currentMode: any = this.MODE_AUTOMATIC;
+
+  // Propriétés pour les alertes
+  alerts: any[] = [];
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.fetchSensorData();
+    this.fetchAlerts();
+    // Appels répétés toutes les 5 secondes
+    setInterval(() => {
+      this.fetchSensorData();
+      this.fetchAlerts();
+    }, 5000); // 5000 ms = 5 sec
   }
+
   ngAfterViewInit(): void {
     console.log('Vue initialisée, références canvas:', {
       powerChart: this.powerChartRef,
@@ -119,6 +149,30 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         console.error('Erreur lors de la récupération des données des capteurs:', error);
       }
     });
+  }
+
+  // Méthode pour récupérer les alertes depuis Django
+  fetchAlerts(): void {
+    this.http.get<any>('http://127.0.0.1:8000/get-alerts/', { withCredentials: true })
+      .subscribe({
+        next: (alertResponse) => {
+          if (alertResponse && alertResponse.data) {
+            this.alerts = alertResponse.data;
+            console.log('Alertes chargées avec succès:', this.alerts);
+          }
+        },
+        error: (errorAlert) => {
+          console.error('Erreur lors du chargement des alertes:', errorAlert);
+          this.alerts.unshift({
+            id: this.alerts.length + 1,
+            alert_type: 'Erreur',
+            message: `Échec du chargement des alertes: ${errorAlert.status} ${errorAlert.statusText}`,
+            severity: 'critical',
+            time: new Date(),
+            machineName: ''
+          });
+        }
+      });
   }
 
   updateFilterOptions(): void {
@@ -573,5 +627,22 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       this.tempHumidityChart.destroy();
       this.tempHumidityChart = null;
     }
+  }
+
+  // Méthode pour obtenir la classe CSS en fonction de l'efficacité
+  getEfficiencyClass(efficiency: number): string {
+    if (efficiency >= 80) return 'high';
+    if (efficiency >= 50) return 'medium';
+    return 'low';
+  }
+
+  // Méthode pour effacer toutes les alertes
+  clearAllAlerts(): void {
+    this.alerts = [];
+  }
+
+  // Méthode pour ignorer une alerte spécifique
+  dismissAlert(alert: any): void {
+    this.alerts = this.alerts.filter(a => a !== alert);
   }
 }

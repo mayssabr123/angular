@@ -3,32 +3,95 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #43cea2, #185a9d);
+  background: linear-gradient(120deg, #f5f7fa, #e9ecef);
   padding: 20px;
 }
 
-.login-card {
+.login-content {
+  display: flex;
   width: 100%;
-  max-width: 450px;
+  max-width: 1200px;
+  min-height: 600px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  transition: transform 0.3s ease;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
-  &:hover {
-    transform: translateY(-5px);
+/* Section gauche - Branding */
+.login-branding {
+  flex: 1;
+  background: linear-gradient(135deg, #0a2463, #3e92cc);
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-logo {
+  margin-bottom: 30px;
+  
+  img {
+    height: 60px;
+    max-width: 100%;
   }
+}
+
+.brand-image {
+  margin: 20px 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.brand-text {
+  margin-top: 30px;
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+}
+
+/* Section droite - Formulaire */
+.login-form-container {
+  flex: 1;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 
   h1 {
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 8px;
+    font-size: 32px;
+    color: #0a2463;
+    margin-bottom: 10px;
+    font-weight: 700;
   }
 
   p {
@@ -39,64 +102,86 @@
 
 .login-form {
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
       color: #444;
+      font-size: 15px;
     }
 
     input {
       width: 100%;
-      padding: 12px 16px;
+      padding: 14px 16px;
       border: 1px solid #ddd;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
 
       &:focus {
         outline: none;
-        border-color: #43cea2;
-        box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.2);
+        border-color: #3e92cc;
+        box-shadow: 0 0 0 3px rgba(62, 146, 204, 0.2);
       }
 
       &.is-invalid {
-        border-color: #ff4d4f;
+        border-color: #e63946;
       }
     }
 
     .error-message {
-      color: #ff4d4f;
+      color: #e63946;
       font-size: 14px;
       margin-top: 6px;
     }
   }
 
   .form-actions {
-    margin-top: 32px;
+    margin-top: 35px;
 
     .btn-login {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #43cea2, #185a9d);
+      padding: 16px;
+      background: linear-gradient(135deg, #0a2463, #3e92cc);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.3s, transform 0.2s;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
 
       &:hover {
-        opacity: 0.9;
         transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(10, 36, 99, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
 
       &:disabled {
         opacity: 0.7;
         cursor: not-allowed;
+      }
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+      }
+      
+      &:hover::before {
+        left: 100%;
       }
     }
   }
@@ -104,19 +189,22 @@
 
 .login-footer {
   text-align: center;
-  margin-top: 24px;
+  margin-top: 30px;
 
   p {
     color: #666;
+    font-size: 15px;
   }
 
   .signup-link {
-    color: #185a9d;
+    color: #0a2463;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
+    transition: color 0.3s ease;
 
     &:hover {
+      color: #3e92cc;
       text-decoration: underline;
     }
   }
@@ -134,4 +222,97 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+  .login-content {
+    flex-direction: column;
+    max-width: 600px;
+  }
+  
+  .login-branding, .login-form-container {
+    flex: none;
+    width: 100%;
+  }
+  
+  .login-branding {
+    padding: 30px;
+  }
+  
+  .brand-text h2 {
+    font-size: 22px;
+  }
+  
+  .brand-text p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-form-container {
+    padding: 30px 20px;
+  }
+  
+  .login-branding {
+    padding: 20px;
+  }
+}
+
+
+/* Images stylisées */
+.sotetel-logo {
+  width: 200px;
+  height: 80px;
+  background: url('https://www.sotetel.tn/wp-content/uploads/2019/04/logo2.png') no-repeat center center;
+  background-size: contain;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+
+.iot-building-image  {
+  width: 100%;
+  height: 250px;
+  background: url('https://www.cisco.com/c/dam/assets/swa/img/anchor-info/what-is-a-smart-building-628x353.png') no-repeat center center;
+  background-size: cover;
+  border-radius: 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4));
+    border-radius: 25px;
+    z-index: 1;
+  }
+}
+/* Ajustements pour les conteneurs d'images */
+.brand-logo, .brand-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

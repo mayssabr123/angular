@@ -56,6 +56,9 @@ export class MachineControlComponent implements OnInit {
   
   // User data and mode
   userData: any = null;
+  userLocation: any = null;
+  userRole: any = null;
+
   currentMode: number = this.MODE_MANUAL;
   
   // Machines data
@@ -92,16 +95,29 @@ export class MachineControlComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const userDataStr = localStorage.getItem('currentUser');
+      const userDataStr = localStorage.getItem('user');
+
       if (userDataStr) {
         this.userData = JSON.parse(userDataStr);
         this.currentMode = this.userData.mode || this.MODE_MANUAL;
+          // Ajoute ici le filtrage dans loadDevices en fonction du rôle
+      this.userLocation = this.userData.location;
+      this.userRole = this.userData.role || 'user'; // par défaut 'user'
+      console.log(  this.userLocation, this.userRole)
+
       }
     }
 
     this.loadMachines();
     this.updateStatistics();
     this.loadDevices();
+      // Appels répétés toutes les 5 secondes
+  setInterval(() => {
+    this.loadMachines();
+    this.updateStatistics();
+    this.loadDevices();
+  }, 5000); // 5000 ms = 5 sec
+
   }
 
 // Méthode pour charger les appareils depuis l'API et filtrer les salles inconnues
@@ -110,22 +126,26 @@ loadDevices(): void {
     .subscribe({
       next: (response) => {
         if (response && response.data) {
-          // Stocker toutes les salles actives avec leurs appareils
           this.rooms = response.data;
 
-          // Charger également la liste des salles valides via /get-all-salles/
           this.http.get<any>('http://127.0.0.1:8000/accounts/get-all-salles/', { withCredentials: true })
             .subscribe({
               next: (sallesResponse) => {
                 if (sallesResponse && sallesResponse.salles) {
                   const validRoomNames = new Set(sallesResponse.salles.map((s: any) => s.name.toLowerCase()));
 
-                  // Filtrer uniquement les salles qui existent aussi dans /get-all-salles/
-                  const filteredRooms = this.rooms.filter((room: Room) => 
+                  let filteredRooms = this.rooms.filter((room: Room) =>
                     validRoomNames.has(room.location.toLowerCase())
                   );
 
-                  // Supprimer les doublons
+                  // 👇 Filtrer par location si non-admin
+                  if (this.userRole !== 'admin') {
+                    console.log(filteredRooms)
+                    filteredRooms = filteredRooms.filter((room: Room) =>
+                      room.location === this.userLocation
+                    );
+                  }
+
                   const uniqueRoomsMap = new Map<string, Room>();
                   filteredRooms.forEach((room: Room) => {
                     const locationKey = room.location.toLowerCase();
@@ -134,14 +154,12 @@ loadDevices(): void {
                     }
                   });
 
-                  // Mettre à jour les variables
                   this.uniqueRooms = Array.from(uniqueRoomsMap.values());
                   this.filteredRooms = [...this.uniqueRooms];
                   this.calculateTotalPages();
 
                   console.log('Appareils chargés (filtrés):', this.uniqueRooms);
 
-                  // 🔽 Appel pour récupérer toutes les alertes
                   this.http.get<any>('http://127.0.0.1:8000/get-alerts/', { withCredentials: true })
                     .subscribe({
                       next: (alertResponse) => {
@@ -191,6 +209,7 @@ loadDevices(): void {
       }
     });
 }
+
 
   // Méthode pour appliquer les filtres
   applyFilters() {

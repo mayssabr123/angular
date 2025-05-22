@@ -137,10 +137,46 @@
                 [disabled]="user.location === user.tempLocation">
                 <i class="fas fa-save"></i> Enregistrer
               </button>
+              <button 
+                class="btn-delete modern-delete-btn" 
+                (click)="confirmDeleteUser(user.email)">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Confirmation de suppression</h3>
+      <button class="modal-close" (click)="cancelDelete()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer l'utilisateur avec l'email <strong>{{ userToDelete }}</strong> ?</p>
+      <p class="modal-warning">Cette action est irréversible et supprimera définitivement cet utilisateur.</p>
+      
+      <div *ngIf="deleteError" class="error-message">
+        <i class="fas fa-exclamation-circle"></i> {{ deleteError }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cancelDelete()">
+        <i class="fas fa-times"></i> Annuler
+      </button>
+      <button class="btn-confirm-delete" (click)="proceedWithDelete()" [disabled]="deleteInProgress">
+        <i *ngIf="!deleteInProgress" class="fas fa-trash-alt"></i>
+        <div *ngIf="deleteInProgress" class="spinner"></div>
+        <span *ngIf="!deleteInProgress">Supprimer</span>
+        <span *ngIf="deleteInProgress">Suppression...</span>
+      </button>
     </div>
   </div>
 </div>

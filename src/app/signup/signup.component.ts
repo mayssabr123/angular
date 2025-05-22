@@ -18,11 +18,11 @@ export class SignupComponent {
   
   // Options de localisation
   locationOptions = [
-    { value: 'salle1', label: 'Salle 1' },
-    { value: 'salle2', label: 'Salle 2' },
-    { value: 'salle3', label: 'Salle 3' },
-    { value: 'bureau1', label: 'Bureau 1' },
-    { value: 'bureau2', label: 'Bureau 2' }
+    { value: 'Salle 1', label: 'Salle 1' },
+    { value: 'Salle 2', label: 'Salle 2' },
+    { value: 'Salle 3', label: 'Salle 3' },
+    { value: 'Bureau 1', label: 'Bureau 1' },
+    { value: 'Bureau 2', label: 'Bureau 2' }
   ];
 
   constructor(
