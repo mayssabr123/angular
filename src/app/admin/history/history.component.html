@@ -18,33 +18,43 @@
     </div>
     
     <div class="alerts-list" *ngIf="alerts.length > 0">
-      <div class="alert-item" *ngFor="let alert of alerts.slice(0, 3)" [ngClass]="alert.severity">
-        <div class="alert-icon">
-          <i class="fas" [ngClass]="{
-            'fa-exclamation-circle': alert.severity === 'critical',
-            'fa-exclamation-triangle': alert.severity === 'warning',
-            'fa-info-circle': alert.severity === 'info'
-          }"></i>
-        </div>
+      <!-- Dans la section qui affiche les alertes, ajoutez un bouton de suppression -->
+      <div class="alert-item" *ngFor="let alert of alerts">
         <div class="alert-content">
-          <div class="alert-header">
-            <h4>{{ alert.alert_type }}</h4>
-            <span class="severity-badge" [ngClass]="alert.severity">
-              {{ alert.severity === 'critical' ? 'Critique' : 
-                 alert.severity === 'warning' ? 'Avertissement' : 'Information' }}
-            </span>
+          <div class="alert-icon" [ngClass]="'severity-' + alert.severity">
+            <i class="fas" [ngClass]="{
+              'fa-exclamation-circle': alert.severity === 'critical',
+              'fa-exclamation-triangle': alert.severity === 'warning',
+              'fa-info-circle': alert.severity === 'info'
+            }"></i>
           </div>
-          <p>{{ alert.message }}</p>
-          <div class="alert-meta">
-            <span class="alert-time"><i class="far fa-clock"></i> {{ alert.time | date:'short' }}</span>
-            <span class="alert-machine" *ngIf="alert.machineName">
-              <i class="fas fa-server"></i> {{ alert.machineName }}
-            </span>
+          <div class="alert-details">
+            <div class="alert-header">
+              <span class="alert-type">{{ alert.alert_type }}</span>
+              <span class="alert-time">{{ formatDate(alert.time) }}</span>
+            </div>
+            <p class="alert-message">{{ alert.message }}</p>
+            <p class="alert-machine" *ngIf="alert.machineName">
+              <i class="fas fa-microchip"></i> {{ alert.machineName }}
+            </p>
           </div>
         </div>
-        <button class="btn-dismiss" (click)="dismissAlert(alert)">
-          <i class="fas fa-times"></i>
+        <button class="delete-alert-btn" (click)="deleteAlert(alert.id)" title="Supprimer cette alerte">
+          <i class="fas fa-trash-alt"></i>
         </button>
+      </div>
+      
+      <!-- Système d'alertes -->
+      <div class="alert-container" *ngIf="showAlert">
+        <div class="alert" [ngClass]="{'alert-success': alertType === 'success', 'alert-error': alertType === 'error'}">
+          <div class="alert-icon">
+            <i class="fas" [ngClass]="{'fa-check-circle': alertType === 'success', 'fa-exclamation-circle': alertType === 'error'}"></i>
+          </div>
+          <div class="alert-message">{{ alertMessage }}</div>
+          <button class="alert-close" (click)="closeAlert()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
     </div>
     
@@ -108,11 +118,7 @@
   <div class="charts-section">
     <div class="section-header">
       <h2>Évolution des Données</h2>
-      <div class="chart-controls">
-        <button [class.active]="selectedChartView === 'daily'" (click)="setChartView('daily')">Journalier</button>
-        <button [class.active]="selectedChartView === 'weekly'" (click)="setChartView('weekly')">Hebdomadaire</button>
-        <button [class.active]="selectedChartView === 'monthly'" (click)="setChartView('monthly')">Mensuel</button>
-      </div>
+   
     </div>
 
     <div class="charts-grid">
@@ -206,11 +212,12 @@
 
     <div class="filters-grid">
       <!-- Filtre par emplacement -->
-      <div class="filter-group">
+      <div class="filter-group" [class.disabled-filter]="isLocationFilterDisabled">
         <label>Emplacement</label>
         <div class="filter-options">
           <button *ngFor="let location of filterOptions.locations" 
                   [class.active]="selectedLocation === location"
+                  [disabled]="isLocationFilterDisabled"
                   (click)="filterByLocation(location)">
             {{ location }}
           </button>
@@ -261,12 +268,7 @@
   <div class="data-table-section">
     <div class="section-header">
       <h2>Données Détaillées</h2>
-      <div class="table-controls">
-        <button class="export-btn">
-          <i class="fas fa-file-export"></i>
-          Exporter
-        </button>
-      </div>
+     
     </div>
 
     <div class="table-container">
@@ -281,12 +283,12 @@
             <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">Puissance (W)</th>
             <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/ldr'">Luminosité (lux)</th>
             <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/mq2'">Qualité Air (ppm)</th>
-            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">Température (°C)</th>
-            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">Humidité (%)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht22'">Température (°C)</th>
+            <th *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht22'">Humidité (%)</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of filteredData">
+          <tr *ngFor="let item of paginatedData">
             <td>{{ formatDate(item.timestamp) }}</td>
             <td>{{ item.location }}</td>
             <td>
@@ -299,11 +301,53 @@
             <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/pzem'">{{ item.power !== null ? (item.power | number:'1.1-1') : '-' }}</td>
             <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/ldr'">{{ item.light_level !== null ? (item.light_level | number:'1.0-0') : '-' }}</td>
             <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/mq2'">{{ item.gas_level !== null ? (item.gas_level | number:'1.0-0') : '-' }}</td>
-            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">{{ item.temperature !== null ? (item.temperature | number:'1.1-1') : '-' }}</td>
-            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht'">{{ item.humidity !== null ? (item.humidity | number:'1.0-0') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht22'">{{ item.temperature !== null ? (item.temperature | number:'1.1-1') : '-' }}</td>
+            <td *ngIf="selectedTopic === 'Tous' || selectedTopic === 'capteurs/dht22'">{{ item.humidity !== null ? (item.humidity | number:'1.0-0') : '-' }}</td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="filteredData.length > 0">
+      <div class="pagination-info">
+        Affichage de {{ (currentPage - 1) * pageSize + 1 }} à {{ Math.min(currentPage * pageSize, filteredData.length) }} sur {{ filteredData.length }} entrées
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          <i class="fas fa-angle-left"></i>
+        </button>
+        
+        <div class="pagination-pages">
+          <button 
+            *ngFor="let page of getPageNumbers()" 
+            class="page-number" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+        </div>
+        
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
+      
+      <div class="page-size-selector">
+        <label for="pageSize">Lignes par page:</label>
+        <select id="pageSize" [(ngModel)]="pageSize" (change)="updatePagination()">
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
     </div>
 
     <!-- Pas de données -->
